@@ -6,7 +6,7 @@
 trigger:
   branches:
     include:
-      - Jas2_NGS_TEST_IAC_01        
+      - Pankaj_TEST_01        
   paths:
     include:
       - Terraform/*
