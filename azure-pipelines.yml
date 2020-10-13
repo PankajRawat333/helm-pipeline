@@ -1,0 +1,165 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  branches:
+    include:
+      - Jas2_NGS_TEST_IAC_01        
+  paths:
+    include:
+      - Terraform/*
+
+stages:
+#   - stage: Initate_Project
+#     jobs:
+#       - job: Create_Resource_Group
+#         pool:
+#           vmImage: "ubuntu-latest"
+
+#         variables:
+#           - group: "NGS_TEST_IAC_01_Core_KeyVault_VG"
+#           - group: "NGS_TEST_IAC_01_Parameters_VG"
+
+#         steps:
+#           - task: PowerShell@2
+#             inputs:
+#               filePath: "./PowerShell/New-Environment.ps1"
+#               arguments: "-ServicePrincipalPassword $(SPN-AXASOC-IAC-TEST-Secret) -SubscriptionId $(SOC-TEST-01-SubscriptionID) -ApplicationId $(SPN-AXASOC-IAC-TEST-AppID) -TenantId $(AXA-SOC-TenantID) -azure_resource_group_name $(azure_resource_group_name) -azure_la_resource_group_name $(azure_la_resource_group_name) -azure_resource_group_location $(azure_resource_group_location) -azure_fw_resource_group_name $(azure_fw_resource_group_name) -tags $(tags)"
+
+#   - stage: Deploy_TF
+#     dependsOn: Initate_Project
+#     condition: eq(dependencies.Initate_Project.result,'succeeded')
+#     jobs:
+#       - job: Deploy_Resources
+#         pool:
+#           vmImage: "ubuntu-latest"
+
+#         variables:
+#           - group: "NGS_TEST_IAC_01_Core_KeyVault_VG"
+#           - group: "NGS_TEST_IAC_01_Parameters_VG"
+
+#         steps:
+#           - task: TerraformInstaller@0
+#             inputs:
+#               terraformVersion: '0.13.3'
+
+#           - task: TerraformTaskV1@0
+#             displayName: "Terraform Init"
+#             inputs:
+#               provider: "azurerm"
+#               command: "init"
+#               workingDirectory: "$(System.DefaultWorkingDirectory)/Terraform"
+#               commandOptions: '-var resource_group_name="$(azure_resource_group_name)" -var loganalytics_workspace_name="$(loganalytics_workspace_name)" -var la_resource_group_name=$(azure_la_resource_group_name) -var fw_resource_group_name=$(azure_fw_resource_group_name)'
+#               backendServiceArm: "AXA_SOC_TEST_01"
+#               backendAzureRmResourceGroupName: "z-soc-ngs-core-test-ew1-rgp01"
+#               backendAzureRmStorageAccountName: "zsocngscoretestew1sto01"
+#               backendAzureRmContainerName: "tfstate"
+#               backendAzureRmKey: "/AXA/terraform.tfstate"
+#           - task: TerraformTaskV1@0
+#             displayName: "Terraform Plan"
+#             inputs:
+#               provider: "azurerm"
+#               command: "plan"
+#               workingDirectory: "$(System.DefaultWorkingDirectory)/Terraform"
+#               commandOptions: '-var resource_group_name="$(azure_resource_group_name)" -var loganalytics_workspace_name="$(loganalytics_workspace_name)" -var la_resource_group_name=$(azure_la_resource_group_name) -var fw_resource_group_name=$(azure_fw_resource_group_name) -out plan'
+#               environmentServiceNameAzureRM: "AXA_SOC_TEST_01"
+#           - task: TerraformTaskV1@0
+#             displayName: "Terraform Apply"
+#             inputs:
+#               provider: "azurerm"
+#               command: "apply"
+#               workingDirectory: "$(System.DefaultWorkingDirectory)/Terraform"
+#               commandOptions: '-var resource_group_name="$(azure_resource_group_name)" -var loganalytics_workspace_name="$(loganalytics_workspace_name)" -var la_resource_group_name=$(azure_la_resource_group_name) -var fw_resource_group_name=$(azure_fw_resource_group_name)'
+#               environmentServiceNameAzureRM: "AXA_SOC_TEST_01"
+
+#   - stage: Deploy_Keyvault
+#     dependsOn: Deploy_TF
+#     jobs:
+#       - job: Deploy_Keyvault
+#         pool:
+#           vmImage: "ubuntu-latest"
+
+#         variables:
+#           - group: "NGS_TEST_IAC_01_Core_KeyVault_VG"
+#           - group: "NGS_TEST_IAC_01_Parameters_VG"
+
+#         steps:
+#           - task: TerraformInstaller@0
+#             inputs:
+#               terraformVersion: '0.13.3'
+
+#           - task: TerraformTaskV1@0
+#             displayName: "Terraform Init"
+#             inputs:
+#               provider: "azurerm"
+#               command: "init"
+#               workingDirectory: "$(System.DefaultWorkingDirectory)/Terraform/Service-Keyvault"
+#               commandOptions: '-var resource_group_name="$(azure_resource_group_name)"'
+#               backendServiceArm: "AXA_SOC_TEST_01"
+#               backendAzureRmResourceGroupName: "z-soc-ngs-core-test-ew1-rgp01"
+#               backendAzureRmStorageAccountName: "zsocngscoretestew1sto01"
+#               backendAzureRmContainerName: "tfstate"
+#               backendAzureRmKey: "/AXA/Service-Keyvualt/terraform.tfstate"
+#           - task: TerraformTaskV1@0
+#             displayName: "Terraform Plan"
+#             inputs:
+#               provider: "azurerm"
+#               command: "plan"
+#               workingDirectory: "$(System.DefaultWorkingDirectory)/Terraform/Service-Keyvault"
+#               commandOptions: '-var resource_group_name="$(azure_resource_group_name)" -out plan -out plan'
+#               environmentServiceNameAzureRM: "AXA_SOC_TEST_01"
+#           - task: TerraformTaskV1@0
+#             displayName: "Terraform Apply"
+#             inputs:
+#               provider: "azurerm"
+#               command: "apply"
+#               workingDirectory: "$(System.DefaultWorkingDirectory)/Terraform/Service-Keyvault"
+#               commandOptions: '-var resource_group_name="$(azure_resource_group_name)"'
+#               environmentServiceNameAzureRM: "AXA_SOC_TEST_01"
+
+  - stage: Deploy_AKS
+    #dependsOn: Deploy_Keyvault
+    jobs:
+      - job: Deploy_Resources
+        pool:
+          vmImage: "ubuntu-latest"
+
+        variables:
+          - group: "NGS_TEST_IAC_01_Core_KeyVault_VG"
+          - group: "NGS_TEST_IAC_01_Parameters_VG"
+
+        steps:
+          - task: TerraformInstaller@0
+            inputs:
+              terraformVersion: '0.13.3'
+
+          - task: TerraformTaskV1@0
+            displayName: "Terraform Init"
+            inputs:
+              provider: "azurerm"
+              command: "init"
+              workingDirectory: "$(System.DefaultWorkingDirectory)/Terraform/Service-AKS"
+              commandOptions: '-var resource_group_name="$(azure_resource_group_name)"'
+              backendServiceArm: "AXA_SOC_TEST_01"
+              backendAzureRmResourceGroupName: "z-soc-ngs-core-test-ew1-rgp01"
+              backendAzureRmStorageAccountName: "zsocngscoretestew1sto01"
+              backendAzureRmContainerName: "tfstate"
+              backendAzureRmKey: "/AXA/Service-AKS/terraform.tfstate"
+          - task: TerraformTaskV1@0
+            displayName: "Terraform Plan"
+            inputs:
+              provider: "azurerm"
+              command: "plan"
+              workingDirectory: "$(System.DefaultWorkingDirectory)/Terraform/Service-AKS"
+              commandOptions: '-var resource_group_name="$(azure_resource_group_name)" -out plan'
+              environmentServiceNameAzureRM: "AXA_SOC_TEST_01"
+          - task: TerraformTaskV1@0
+            displayName: "Terraform Apply"
+            inputs:
+              provider: "azurerm"
+              command: "apply"
+              workingDirectory: "$(System.DefaultWorkingDirectory)/Terraform/Service-AKS"
+              commandOptions: '-var resource_group_name="$(azure_resource_group_name)"'
+              environmentServiceNameAzureRM: "AXA_SOC_TEST_01"
